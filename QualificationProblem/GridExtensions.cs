@@ -8,7 +8,7 @@ namespace QualificationProblem
         public static int GetRowIndex(this Grid grid, char rowId) => grid.IsValidRowId(rowId) ? (int)rowId - (int)grid.MinRow : -1;
 
         public static int GetColumnIndex(this Grid grid, int columnId) => grid.IsValidColumnId(columnId) ? (columnId - 1) / 2 : -1;
-                
+
         //grid cells:
         public static Vertex? GetGridCellOrigin(this Grid grid, char rowId, int columnId)
         {
@@ -35,10 +35,10 @@ namespace QualificationProblem
             if (gridCellOrigin == null)
                 return null;
             return new Triangle()
-                {
-                    RowId = rowId,
-                    ColumnId = columnId
-                }
+            {
+                RowId = rowId,
+                ColumnId = columnId
+            }
                 .WithPosition(gridCellOrigin.Value, grid, columnId.IsEven());
         }
 
@@ -52,16 +52,15 @@ namespace QualificationProblem
             if (vertices == null || vertices.Count() != 3)
                 return false;
 
-            //validate verts as a valid triangle (a valid triangle will have 2 points with the same X, and 2 points with the same Y):
-            if (vertices.Select(v => v.X).Distinct().Count() != 2)
-                return false;
-            if (vertices.Select(v => v.Y).Distinct().Count() != 2)
+            //validate verts as a valid right triangle
+            if (!vertices.IsRightTriangleVertexSet())
                 return false;
 
             //Locate cell origin:
             int minX = vertices.Min(v => v.X);
             int minY = vertices.Min(v => v.Y);
 
+            //calculate cell maximum coordinates:
             int maxX = vertices.Max(v => v.X);
             int maxY = vertices.Max(v => v.Y);
 
@@ -72,11 +71,13 @@ namespace QualificationProblem
                 return false;
 
             //check that coordinates are multiples of row/column dimensions:
-            if (minX % grid.ColumnWidth != 0 || maxX % grid.ColumnWidth != 0 || minY % grid.RowHeight != 0 || maxY % grid.RowHeight != 0)
+            if (!grid.CoordinatesAreMultiplesOfGridDistances(minX, minY))
+                return false;
+            if (!grid.CoordinatesAreMultiplesOfGridDistances(maxX, maxY))
                 return false;
 
-            //we know we are inside the grid now...proceed to determine actual row/column:
-                var rowIndex = minY / grid.RowHeight;
+            //we know we are inside the grid now and that the coordinates are valid...proceed to determine actual row/column:
+            var rowIndex = minY / grid.RowHeight;
             rowId = (char)((int)grid.MinRow + rowIndex);
 
             var rawColumnIndex = minX / grid.ColumnWidth;
@@ -84,8 +85,8 @@ namespace QualificationProblem
             //check whether we are on an odd or even column:
             //assign 'offset' of 1 for odd; 2 for even...
             //assuming the triangle verts are valid, this will occur if we count the vertices where:  vert.Y == minY
-            int offfset = vertices.Where(v => v.Y == minY).Count();
-            columnId = rawColumnIndex * 2 + offfset;
+            int offset = vertices.Where(v => v.Y == minY).Count();
+            columnId = rawColumnIndex * 2 + offset;
             return true;
         }
 
@@ -97,6 +98,13 @@ namespace QualificationProblem
         public static int MaxY(this Grid grid)
         {
             return (1 + (int)grid.MaxRow - (int)grid.MinRow) * grid.RowHeight;
+        }
+
+        public static bool CoordinatesAreMultiplesOfGridDistances(this Grid grid, int x, int y)
+        {
+            if (x % grid.ColumnWidth != 0 || y % grid.RowHeight != 0)
+                return false;
+            return true;
         }
 
         //row and column Id validation:

@@ -38,6 +38,30 @@ namespace QualificationProblemTests
             var second = new Vertex() { X = 20, Y = 10 };
             Assert.IsFalse(first.IsCoincident(second));
         }
+
+        [Test]
+        public void VertexExtensions_IsRightTriangleVertexSet_DefaultGrid_ValidInput_ReturnsTrue()
+        {
+            var vertex0 = new Vertex { X = 30, Y = 30 };
+            var vertex1 = new Vertex { X = 30, Y = 20 };
+            var vertex2 = new Vertex { X = 40, Y = 30 };
+
+            var vertices = new Vertex[] { vertex0, vertex1, vertex2 };
+
+            Assert.IsTrue(vertices.IsRightTriangleVertexSet());
+        }
+
+        [Test]
+        public void VertexExtensions_IsRightTriangleVertexSet_DefaultGrid_InvalidInput_ReturnsFalse()
+        {
+            var vertex0 = new Vertex { X = 10, Y = 40 };
+            var vertex1 = new Vertex { X = 20, Y = 10 };
+            var vertex2 = new Vertex { X = 20, Y = 20 };
+
+            var vertices = new Vertex[] { vertex0, vertex1, vertex2 };
+
+            Assert.IsFalse(vertices.IsRightTriangleVertexSet());
+        }
         #endregion
 
         #region TriangleExtensions Tests
@@ -213,6 +237,30 @@ namespace QualificationProblemTests
         {
             Assert.AreEqual(60, _defaultGrid.MaxY());
         }
+
+        [Test]
+        public void GridExtensions_CoordinatesAreMultiplesOfGridDistances_DefaultGrid_ValidInput_ReturnsTrue()
+        {
+            Assert.IsTrue(_defaultGrid.CoordinatesAreMultiplesOfGridDistances(_defaultGrid.ColumnWidth * 2, _defaultGrid.RowHeight * 2));
+        }
+
+        [Test]
+        public void GridExtensions_CoordinatesAreMultiplesOfGridDistances_DefaultGrid_InvalidXInput_ReturnsFalse()
+        {
+            Assert.IsFalse(_defaultGrid.CoordinatesAreMultiplesOfGridDistances(_defaultGrid.ColumnWidth * 2 + 1, _defaultGrid.RowHeight * 2));
+        }
+        [Test]
+        public void GridExtensions_CoordinatesAreMultiplesOfGridDistances_DefaultGrid_InvalidYInput_ReturnsFalse()
+        {
+            Assert.IsFalse(_defaultGrid.CoordinatesAreMultiplesOfGridDistances(_defaultGrid.ColumnWidth * 2, _defaultGrid.RowHeight * 2 + 1));
+        }
+
+        [Test]
+        public void GridExtensions_CoordinatesAreMultiplesOfGridDistances_DefaultGrid_InvalidXYInput_ReturnsFalse()
+        {
+            Assert.IsFalse(_defaultGrid.CoordinatesAreMultiplesOfGridDistances(_defaultGrid.ColumnWidth * 2+1, _defaultGrid.RowHeight * 2 + 1));
+        }
+
 
         [Test]
         public void GridExtensions_IsValidRowId_ValidValues_ReturnsTrue()
